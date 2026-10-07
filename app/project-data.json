@@ -1,0 +1,39 @@
+{
+  "projects": [
+    {
+      "name": "Contributor Quickstart",
+      "owner": "Maya Chen",
+      "status": "in-progress",
+      "recentActivity": "Setup instructions were tested in a fresh Codespace; the first-run steps are ready for review.",
+      "priority": "high"
+    },
+    {
+      "name": "API Pagination",
+      "owner": "Jordan Lee",
+      "status": "active",
+      "recentActivity": "Cursor-based pagination landed in staging, with integration tests covering the largest responses.",
+      "priority": "medium"
+    },
+    {
+      "name": "Accessibility Audit",
+      "owner": "Sam Rivera",
+      "status": "at-risk",
+      "recentActivity": "Keyboard testing found two focus-order issues; fixes are scoped and need another reviewer.",
+      "priority": "high"
+    },
+    {
+      "name": "Design Token Cleanup",
+      "owner": "Avery Patel",
+      "status": "blocked",
+      "recentActivity": "The shared color-token update is waiting on confirmation of the new contrast palette.",
+      "priority": "medium"
+    },
+    {
+      "name": "Release Notes Automation",
+      "owner": "Taylor Brooks",
+      "status": "planned",
+      "recentActivity": "The team agreed on the changelog format; a small proof of concept is queued for the next sprint.",
+      "priority": "low"
+    }
+  ]
+}

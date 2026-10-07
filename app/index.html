@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f3f6f2">
+    <title>Project Pulse</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+      const supportedStatuses = new Set([
+        "active",
+        "in-progress",
+        "at-risk",
+        "blocked",
+        "complete",
+        "completed",
+        "planned",
+      ]);
+      const supportedPriorities = new Set(["high", "medium", "low"]);
+
+      function setMessage(message, isError = false) {
+        const statusMessage = document.querySelector("#dashboard-message");
+        statusMessage.textContent = message;
+        statusMessage.dataset.state = isError ? "error" : "info";
+        statusMessage.hidden = false;
+      }
+
+      function createProjectCard(project) {
+        const card = document.createElement("article");
+        card.className = "project-card";
+
+        const heading = document.createElement("div");
+        heading.className = "project-card__heading";
+
+        const name = document.createElement("h2");
+        name.className = "project-card__name";
+        name.textContent = project.name;
+
+        const status = document.createElement("span");
+        status.className = "project-card__status";
+        status.dataset.status = project.status;
+        status.textContent = project.status.replaceAll("-", " ");
+
+        heading.append(name, status);
+
+        const owner = document.createElement("p");
+        owner.className = "project-card__owner";
+        owner.textContent = `Owner: ${project.owner}`;
+
+        const activity = document.createElement("p");
+        activity.className = "project-card__activity";
+        activity.textContent = project.recentActivity;
+
+        const priority = document.createElement("p");
+        priority.className = "project-card__priority";
+        priority.dataset.priority = project.priority;
+        priority.textContent = `Priority: ${project.priority}`;
+
+        card.append(heading, owner, activity, priority);
+        return card;
+      }
+
+      async function loadProjects() {
+        const projectGrid = document.querySelector("#project-grid");
+
+        try {
+          const response = await fetch("project-data.json");
+          if (!response.ok) {
+            throw new Error(`Project data request failed (${response.status}).`);
+          }
+
+          const data = await response.json();
+          if (!data || !Array.isArray(data.projects)) {
+            throw new Error("Project data must contain a projects array.");
+          }
+
+          if (data.projects.length === 0) {
+            setMessage("No projects to show yet.");
+            return;
+          }
+
+          const hasInvalidProject = data.projects.some((project) =>
+            !project ||
+            typeof project.name !== "string" ||
+            !project.name.trim() ||
+            typeof project.owner !== "string" ||
+            !project.owner.trim() ||
+            typeof project.recentActivity !== "string" ||
+            !project.recentActivity.trim() ||
+            !supportedStatuses.has(project.status) ||
+            !supportedPriorities.has(project.priority)
+          );
+
+          if (hasInvalidProject) {
+            throw new Error("One or more projects have missing or unsupported values.");
+          }
+
+          const cards = data.projects.map(createProjectCard);
+          projectGrid.replaceChildren(...cards);
+          projectGrid.hidden = false;
+          document.querySelector("#dashboard-message").hidden = true;
+        } catch (error) {
+          console.error("Unable to load Project Pulse data:", error);
+          setMessage("Projects could not be loaded. Check that project-data.json is valid and try again.", true);
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", loadProjects, { once: true });
+    </script>
+  </head>
+  <body>
+    <main class="dashboard">
+      <header class="dashboard-header">
+        <div>
+          <p class="dashboard-kicker">Team overview</p>
+          <h1 class="dashboard-title">Project Pulse</h1>
+          <p class="dashboard-summary">See who owns each project, what moved recently, and where the team should focus next.</p>
+        </div>
+      </header>
+
+      <p id="dashboard-message" role="status" aria-live="polite">Loading projects...</p>
+      <section id="project-grid" class="project-grid" aria-label="Projects" hidden></section>
+    </main>
+  </body>
+</html>
